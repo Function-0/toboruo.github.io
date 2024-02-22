@@ -6,7 +6,8 @@
 
 const GSCRIPT = "https://script.google.com/macros/s/AKfycby45GcsM7KFs1Ihe-wBZcJCxpkE2kyoTiq4jJz6HWnCKBrfv5taJGZzkiA7PPEN26Ys/exec";
 const VAL = {
-  // bootstrap class name
+  // bootstrap class names
+  BTN_TYPE: "btn-outline-primary",
   QF_ROW: "table-primary",
   
   // number of people who can qualify per category/column
@@ -31,14 +32,34 @@ window.onload = (event) => {
     // console.log(data);
     ranked = assignRanks(data);
     document.getElementById("table-spinner").style.display = "none";
+    makeRadios();
     
     // make table with no filters applied
-    makeTable(0b1111);
+    makeTable(2 ** VAL.QF_CTGS - 1);
 
     document.querySelectorAll(".btn-filter").forEach((radio) => radio.addEventListener("click", 
       (radio) => radio.checked = !radio.checked));
     document.getElementById("apply-filter").addEventListener("click", filterCols);
   });
+}
+
+function makeRadios() {
+  let btngroup = document.getElementById("filter-col-group");
+  for (let i = 0; i < VAL.QF_CTGS; i++) {
+    let input = document.createElement("input");
+    input.type = "checkbox";
+    input.className = "btn-check btn-filter";
+    input.id = `filter-col${i}`;
+    input.value = i;
+    input.setAttribute("autocomplete", "off");
+    btngroup.appendChild(input);
+
+    let label = document.createElement("label");
+    label.className = `btn ${VAL.BTN_TYPE}`;
+    label.setAttribute("for", `filter-col${i}`);
+    label.innerHTML = i+1;
+    btngroup.appendChild(label);
+  }
 }
 
 function filterCols() {

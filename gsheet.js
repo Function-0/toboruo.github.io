@@ -49,9 +49,11 @@ function getData() {
     makeTable(2 ** VAL.QF_CTGS - 1);
     
 
-    document.querySelectorAll(".btn-filter").forEach((radio) => radio.addEventListener("click", 
-      (radio) => radio.checked = !radio.checked));
-    document.getElementById("apply-filter").addEventListener("click", filterCols);
+    document.querySelectorAll(".btn-filter").forEach((radio) => radio.addEventListener("click", (radio) => {
+      radio.checked = !radio.checked;
+      filterCols();
+    }));
+    // document.getElementById("apply-filter").addEventListener("click", filterCols);
     initDone = true;
   });
 }

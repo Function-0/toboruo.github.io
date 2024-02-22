@@ -4,6 +4,7 @@
  * 
  */
 
+const GSCRIPT = "https://script.google.com/macros/s/AKfycby45GcsM7KFs1Ihe-wBZcJCxpkE2kyoTiq4jJz6HWnCKBrfv5taJGZzkiA7PPEN26Ys/exec";
 const VAL = {
   // bootstrap class name
   QF_ROW: "table-primary",

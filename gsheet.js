@@ -6,6 +6,9 @@
 
 const GSCRIPT = "https://script.google.com/macros/s/AKfycby45GcsM7KFs1Ihe-wBZcJCxpkE2kyoTiq4jJz6HWnCKBrfv5taJGZzkiA7PPEN26Ys/exec";
 const VAL = {
+  // refresh interval
+  REFRESH: 60,
+
   // bootstrap class names
   BTN_TYPE: "btn-outline-primary",
   QF_ROW: "table-primary",
@@ -24,26 +27,52 @@ const VAL = {
 
 // init, only assigned when fetch response received
 var ranked; 
+var initDone = false;
 
-window.onload = (event) => {
+window.onload = (event) => getData();
+
+function getData() {
+  document.getElementById("table-spinner").style.display = "flex";
   fetch(GSCRIPT)
   .then((response) => response.json())
   .then((data) => {
     // console.log(data);
+    timer = document.getElementById("refresh");
+    if (!initDone) {
+      refreshTimer(VAL.REFRESH, timer);
+      makeRadios();
+    }
     ranked = assignRanks(data);
     document.getElementById("table-spinner").style.display = "none";
-    makeRadios();
     
     // make table with no filters applied
     makeTable(2 ** VAL.QF_CTGS - 1);
+    
 
     document.querySelectorAll(".btn-filter").forEach((radio) => radio.addEventListener("click", 
       (radio) => radio.checked = !radio.checked));
     document.getElementById("apply-filter").addEventListener("click", filterCols);
+    initDone = true;
   });
 }
 
+function refreshTimer(duration, timer) {
+  let cd = duration;
+  setInterval(function () {
+    timer.textContent = cd;
+    if (--cd < 0) {
+      cd = duration;
+      getData();
+    }
+  }, 1000);
+}
+
 function makeRadios() {
+  let btngroupNew = document.createElement("div");
+  btngroupNew.className = "btn-group mx-3";
+  btngroupNew.id = "filter-col-group";
+  btngroupNew.setAttribute("role", "group");
+
   let btngroup = document.getElementById("filter-col-group");
   for (let i = 0; i < VAL.QF_CTGS; i++) {
     let input = document.createElement("input");
@@ -52,14 +81,16 @@ function makeRadios() {
     input.id = `filter-col${i}`;
     input.value = i;
     input.setAttribute("autocomplete", "off");
-    btngroup.appendChild(input);
+    btngroupNew.appendChild(input);
 
     let label = document.createElement("label");
     label.className = `btn ${VAL.BTN_TYPE}`;
     label.setAttribute("for", `filter-col${i}`);
-    label.innerHTML = i+1;
-    btngroup.appendChild(label);
+    label.textContent = i+1;
+    btngroupNew.appendChild(label);
   }
+
+  btngroup.parentNode.replaceChild(btngroupNew, btngroup);
 }
 
 function filterCols() {
@@ -106,9 +137,16 @@ function makeTable(filters) {
     let entry = filtered[i];
     let row = tbodyNew.insertRow();
     if (entry.rankCol <= VAL.QF_NUM) row.className = VAL.QF_ROW;
-    makeCell(row, isQualify(entry.rankCol));
+
+    let qual = "", badge = false;
+    if (isQualify(entry.rankCol)) {
+      qual = "Qualify";
+      badge = true; //`<span class="badge rounded-pill bg-primary">${entry.column} Qualifier</span>`;
+    }
+
+    makeCell(row, qual);
     makeCell(row, entry.rankAll);
-    makeCell(row, entry.player);
+    makeCell(row, entry.player, badge, entry);
     makeCell(row, entry.columnInt);
     makeCell(row, entry.timeString);
   }
@@ -120,12 +158,20 @@ function sortRankAll(a,b) {
   return a.timeSecsInt - b.timeSecsInt;
 }
 
-function makeCell(row, text) {
+function makeCell(row, text, badge = false, entry = undefined) {
   let cell = row.insertCell();
   let content = document.createTextNode(text);
   cell.appendChild(content);
+
+  if (badge) {
+    let span = document.createElement("span");
+    span.className = "badge bg-primary mx-3";
+    cell.appendChild(span);
+    let badgeText = document.createTextNode(`${entry.column} Qualifier`);
+    span.appendChild(badgeText);
+  }
 }
 
 function isQualify(rank) {
-  return rank <= VAL.QF_NUM ? "Qualify" : "";
+  return rank <= VAL.QF_NUM;
 }

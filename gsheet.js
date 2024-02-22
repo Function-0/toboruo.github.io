@@ -4,8 +4,7 @@
  * 
  */
 
-const GSCRIPT = CONFIG.GSCRIPT;
-// const GSCRIPT = CONFIG.;// + '?col=' + 3;
+const GSCRIPT = GSCRIPT;
 const VAL = {
   // bootstrap class name
   QF_ROW: "table-primary",

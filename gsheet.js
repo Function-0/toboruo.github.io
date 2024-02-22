@@ -9,12 +9,10 @@ const VAL = {
   // bootstrap class name
   QF_ROW: "table-primary",
   
-  // number of people who can qualify
-  QF_NUM: 4, // just to demonstrate
-  QF_NUM_COL: 1, // just to demonstrate
-
+  // number of people who can qualify per category/column
+  QF_NUM: 3,
   // number of qualifying categories/columns
-  QF_CTGS: 4,
+  QF_CTGS: 8,
   
   // hex codes for columns
   COL_1: "#2674eb",
@@ -86,7 +84,7 @@ function makeTable(filters) {
   for (let i = 0; i < filtered.length; i++) {
     let entry = filtered[i];
     let row = tbodyNew.insertRow();
-    if (entry.rankCol <= VAL.QF_NUM_COL) row.className = VAL.QF_ROW;
+    if (entry.rankCol <= VAL.QF_NUM) row.className = VAL.QF_ROW;
     makeCell(row, isQualify(entry.rankCol));
     makeCell(row, entry.rankAll);
     makeCell(row, entry.player);
@@ -108,5 +106,5 @@ function makeCell(row, text) {
 }
 
 function isQualify(rank) {
-  return rank <= VAL.QF_NUM_COL ? "Qualify" : "";
+  return rank <= VAL.QF_NUM ? "Qualify" : "";
 }
